@@ -7,6 +7,15 @@
 # General application configuration
 import Config
 
+config :ash_oban, pro?: false
+
+config :dotuh, Oban,
+  engine: Oban.Engines.Basic,
+  notifier: Oban.Notifiers.Postgres,
+  queues: [default: 10, chat_responses: [limit: 10], conversations: [limit: 10]],
+  repo: Dotuh.Repo,
+  plugins: [{Oban.Plugins.Cron, []}]
+
 config :ash,
   allow_forbidden_field_for_relationships_by_default?: true,
   include_embedded_source_by_default?: false,
@@ -45,7 +54,8 @@ config :spark,
 
 config :dotuh,
   ecto_repos: [Dotuh.Repo],
-  generators: [timestamp_type: :utc_datetime]
+  generators: [timestamp_type: :utc_datetime],
+  ash_domains: [Dotuh.Chat, Dotuh.GameState]
 
 # Configures the endpoint
 config :dotuh, DotuhWeb.Endpoint,

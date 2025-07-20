@@ -1,4 +1,5 @@
 import Config
+config :dotuh, Oban, testing: :manual
 config :ash, policies: [show_policy_breakdowns?: true]
 
 # Configure your database

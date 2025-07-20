@@ -35,3 +35,6 @@ dotuh-*.tar
 npm-debug.log
 /assets/node_modules/
 
+# Dota 2 data cloned on startup
+/dota_data/
+

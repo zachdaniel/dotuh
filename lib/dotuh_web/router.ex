@@ -15,9 +15,17 @@ defmodule DotuhWeb.Router do
   end
 
   scope "/", DotuhWeb do
+    pipe_through :api
+
+    post "/live_game", GameController, :event, log: false
+  end
+
+  scope "/", DotuhWeb do
     pipe_through :browser
 
     get "/", PageController, :home
+    live "/chat", ChatLive
+    live "/chat/:conversation_id", ChatLive
   end
 
   # Other scopes may use custom stacks.

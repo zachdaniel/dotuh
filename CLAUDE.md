@@ -1,3 +1,58 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project Overview
+
+Dotuh is a live Dota 2 AI coach application built with Phoenix and Ash Framework. It receives real-time game state data from Dota 2's Game State Integration (GSI) and will provide AI-powered coaching advice to players during matches.
+
+## CRITICAL: Read Usage Rules
+
+**YOU MUST READ THE USAGE RULES FREQUENTLY**. The usage rules below contain all the correct commands, patterns, and best practices for this codebase. Do not guess or assume - always consult the usage rules first. They are maintained by the package authors and are your primary source of truth.
+
+**ESPECIALLY IMPORTANT**: When encountering compilation errors, runtime errors, or any unexpected behavior, your FIRST step should be to check the usage rules for the relevant packages. Many common issues (like missing `require` statements, incorrect syntax, or wrong patterns) are covered in the usage rules.
+
+Use these commands to access documentation:
+- `mix usage_rules.docs Module.function` - Get docs for specific functions
+- `mix usage_rules.search_docs "query"` - Search all documentation
+
+## Common Development Tasks
+
+```bash
+# Initial setup
+mix setup                    # Install dependencies, setup database, build assets
+
+# Development
+mix phx.server              # Start server on port 4321
+iex -S mix phx.server       # Start with interactive shell
+
+# Ash-specific tasks (see usage rules for full details)
+mix ash.setup               # Ash-specific setup
+mix ash.codegen             # Generate code (including migrations)
+mix ash.migrate             # Run migrations
+
+# Testing
+mix test                    # Run all tests
+mix test path/to/test.exs:123  # Run specific test at line
+```
+
+## Architecture
+
+This is an Ash Framework application with Phoenix web layer. The application runs on port 4321 (non-standard).
+
+## Dota 2 Integration
+
+The application automatically configures Dota 2's GSI on startup (see `lib/dotuh/application.ex`):
+- **Endpoint**: `POST /live_game` 
+- **Controller**: `DotuhWeb.GameController.event/2`
+- **Current Status**: Stub implementation that logs params
+
+GSI provides comprehensive game state data that will be used for AI coaching.
+
+## Development Notes
+
+- Never run `phx.server` yourself. I'm running it. Use Tidewave MCP tools.
+
 <!-- usage-rules-start -->
 <!-- usage-rules-header -->
 # Usage Rules

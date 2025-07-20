@@ -35,6 +35,10 @@ defmodule Dotuh.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:vdf, "~> 0.1"},
+      {:mdex, "~> 0.7"},
+      {:ash_oban, "~> 0.4"},
+      {:tidewave, "~> 0.2", only: [:dev]},
       {:usage_rules, "~> 0.1"},
       {:sourceror, "~> 1.8"},
       {:ash_phoenix, "~> 2.0"},
