@@ -4,16 +4,18 @@ defmodule Dotuh.GameState.Actions.ListAbilities do
 
     case load_all_abilities() do
       abilities when is_list(abilities) and length(abilities) > 0 ->
-        filtered_abilities = abilities
+        filtered_abilities =
+          abilities
           |> Enum.filter(&matches_ability_type?(&1, ability_type))
           |> Enum.sort_by(& &1.ability_name)
 
-        {:ok, %{
-          abilities: filtered_abilities,
-          count: length(filtered_abilities),
-          description: "List of Dota 2 abilities with their names and basic info",
-          type_filter: ability_type
-        }}
+        {:ok,
+         %{
+           abilities: filtered_abilities,
+           count: length(filtered_abilities),
+           description: "List of Dota 2 abilities with their names and basic info",
+           type_filter: ability_type
+         }}
 
       _ ->
         {:error, "Failed to load ability data from VDF files"}
@@ -23,10 +25,10 @@ defmodule Dotuh.GameState.Actions.ListAbilities do
   defp load_all_abilities() do
     # Load from main abilities file
     main_abilities = load_abilities_from_file("npc_abilities.txt")
-    
+
     # Load from hero-specific files
     hero_abilities = load_hero_specific_abilities()
-    
+
     (main_abilities ++ hero_abilities)
     |> Enum.uniq_by(& &1.ability_name)
   end
@@ -37,9 +39,9 @@ defmodule Dotuh.GameState.Actions.ListAbilities do
         abilities
         |> Enum.filter(fn {ability_name, ability_data} ->
           # Filter out non-ability entries
-          is_map(ability_data) and 
-          not String.starts_with?(ability_name, "Version") and
-          not String.starts_with?(ability_name, "item_")
+          is_map(ability_data) and
+            not String.starts_with?(ability_name, "Version") and
+            not String.starts_with?(ability_name, "item_")
         end)
         |> Enum.map(fn {ability_name, ability_data} ->
           %{
@@ -52,14 +54,15 @@ defmodule Dotuh.GameState.Actions.ListAbilities do
           }
         end)
 
-      _ -> []
+      _ ->
+        []
     end
   end
 
   defp load_hero_specific_abilities() do
     # Get list of hero files
     hero_files_dir = "./dota_data/dota/scripts/npc/heroes"
-    
+
     case File.ls(hero_files_dir) do
       {:ok, files} ->
         files
@@ -68,8 +71,9 @@ defmodule Dotuh.GameState.Actions.ListAbilities do
           hero_name = extract_hero_name_from_file(filename)
           load_hero_abilities_from_file("heroes/" <> filename, hero_name)
         end)
-      
-      _ -> []
+
+      _ ->
+        []
     end
   end
 
@@ -92,13 +96,15 @@ defmodule Dotuh.GameState.Actions.ListAbilities do
           }
         end)
 
-      _ -> []
+      _ ->
+        []
     end
   end
 
   defp extract_hero_name_from_file("npc_dota_hero_" <> rest) do
     String.replace_suffix(rest, ".txt", "")
   end
+
   defp extract_hero_name_from_file(filename), do: filename
 
   defp matches_ability_type?(_ability, "all"), do: true

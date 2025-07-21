@@ -30,13 +30,15 @@ defmodule Dotuh.VDF.ReaderUtil do
     end
   end
 
-  @spec classify_other(String.t()) :: :skippable | :opening_brace | :closing_brace | :unknown | :empty_value
+  @spec classify_other(String.t()) ::
+          :skippable | :opening_brace | :closing_brace | :unknown | :empty_value
   defp classify_other(line) do
     cond do
       is_comment?(line) or is_empty?(line) -> :skippable
       is_opening_brace?(line) -> :opening_brace
       is_closing_brace?(line) -> :closing_brace
-      is_empty_quoted_string?(line) -> :empty_value  # Treat standalone "" as empty value
+      # Treat standalone "" as empty value
+      is_empty_quoted_string?(line) -> :empty_value
       true -> :unknown
     end
   end
@@ -75,7 +77,8 @@ defmodule Dotuh.VDF.ReaderUtil do
   def key(line) when is_bitstring(line) do
     case Regex.run(~r/^\s*"(?<k>(?:\\"|[^"])*)"\s*(\/\/.*)?$/, line, capture: ["k"]) do
       [key] when key != "" -> {:ok, key}
-      [""] -> nil  # Empty string keys are invalid, treat as skippable
+      # Empty string keys are invalid, treat as skippable
+      [""] -> nil
       _ -> nil
     end
   end

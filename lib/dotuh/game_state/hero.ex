@@ -119,25 +119,26 @@ defmodule Dotuh.GameState.Hero do
     timestamps()
   end
 
-  calculations do
-    calculate :hero_data, :map, {Dotuh.GameState.Calculations.VdfDataExtractor, 
-      vdf_file: "npc_heroes.txt", 
-      vdf_path: ["DOTAHeroes", :internal_name]
-    } do
-      public? true
-    end
-    
-    calculate :localized_name, :string, {Dotuh.GameState.Calculations.VdfDataExtractor,
-      vdf_file: "npc_heroes.txt",
-      vdf_path: ["DOTAHeroes", :internal_name, "workshop_guide_name"]
-    } do
-      public? true
-    end
-  end
-
   relationships do
     belongs_to :game, Dotuh.GameState.Game
     has_many :abilities, Dotuh.GameState.Ability
     has_many :items, Dotuh.GameState.Item
+  end
+
+  calculations do
+    calculate :hero_data,
+              :map,
+              {Dotuh.GameState.Calculations.VdfDataExtractor,
+               vdf_file: "npc_heroes.txt", vdf_path: ["DOTAHeroes", :internal_name]} do
+      public? true
+    end
+
+    calculate :localized_name,
+              :string,
+              {Dotuh.GameState.Calculations.VdfDataExtractor,
+               vdf_file: "npc_heroes.txt",
+               vdf_path: ["DOTAHeroes", :internal_name, "workshop_guide_name"]} do
+      public? true
+    end
   end
 end

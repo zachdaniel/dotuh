@@ -60,11 +60,11 @@ defmodule Dotuh.GameState.Event do
     timestamps()
   end
 
-  identities do
-    identity :unique_event, [:game_id, :game_time, :player_id]
-  end
-
   relationships do
     belongs_to :game, Dotuh.GameState.Game
+  end
+
+  identities do
+    identity :unique_event, [:game_id, :game_time, :player_id]
   end
 end

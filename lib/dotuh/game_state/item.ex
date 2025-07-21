@@ -79,24 +79,24 @@ defmodule Dotuh.GameState.Item do
     timestamps()
   end
 
-  calculations do
-    calculate :item_data, :map, {Dotuh.GameState.Calculations.VdfDataExtractor,
-      vdf_file: "items.txt",
-      vdf_path: ["DOTAAbilities", :name]
-    } do
-      public? true
-    end
-    
-    calculate :cost, :integer, {Dotuh.GameState.Calculations.VdfDataExtractor,
-      vdf_file: "items.txt", 
-      vdf_path: ["DOTAAbilities", :name, "ItemCost"]
-    } do
-      public? true
-    end
-  end
-
   relationships do
     belongs_to :game, Dotuh.GameState.Game
     belongs_to :hero, Dotuh.GameState.Hero
+  end
+
+  calculations do
+    calculate :item_data,
+              :map,
+              {Dotuh.GameState.Calculations.VdfDataExtractor,
+               vdf_file: "items.txt", vdf_path: ["DOTAAbilities", :name]} do
+      public? true
+    end
+
+    calculate :cost,
+              :integer,
+              {Dotuh.GameState.Calculations.VdfDataExtractor,
+               vdf_file: "items.txt", vdf_path: ["DOTAAbilities", :name, "ItemCost"]} do
+      public? true
+    end
   end
 end

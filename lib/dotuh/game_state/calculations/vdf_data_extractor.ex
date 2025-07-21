@@ -14,10 +14,10 @@ defmodule Dotuh.GameState.Calculations.VdfDataExtractor do
   def calculate(records, opts, _context) do
     vdf_file = opts[:vdf_file]
     vdf_path = opts[:vdf_path]
-    
+
     # Load and cache the VDF data
     vdf_data = load_vdf_data(vdf_file)
-    
+
     Enum.map(records, fn record ->
       # Build the path by resolving atoms to record field values
       actual_path = build_path(vdf_path, record)
@@ -27,12 +27,13 @@ defmodule Dotuh.GameState.Calculations.VdfDataExtractor do
 
   defp load_vdf_data(vdf_file) do
     data_path = Path.join([File.cwd!(), "dota_data", "dota", "scripts", "npc", vdf_file])
-    
+
     case Dotuh.SimpleVdfParser.parse_file(data_path) do
-      {:ok, data} -> 
+      {:ok, data} ->
         # Return the data as-is - don't wrap it
         data
-      {:error, _error} -> 
+
+      {:error, _error} ->
         %{}
     end
   end

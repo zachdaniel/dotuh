@@ -20,7 +20,7 @@ config :dotuh, Dotuh.Repo,
 config :dotuh, DotuhWeb.Endpoint,
   # Binding to loopback ipv4 address prevents access from other machines.
   # Change to `ip: {0, 0, 0, 0}` to allow access from other machines.
-  http: [ip: {127, 0, 0, 1}, port: String.to_integer(System.get_env("PORT") || "4321")],
+  http: [ip: {0, 0, 0, 0}, port: String.to_integer(System.get_env("PORT") || "4321")],
   check_origin: false,
   code_reloader: true,
   debug_errors: true,
@@ -56,7 +56,7 @@ config :dotuh, DotuhWeb.Endpoint,
 # Watch static and templates for browser reloading.
 config :dotuh, DotuhWeb.Endpoint,
   live_reload: [
-    web_console_logger: true,
+    # web_console_logger: true,
     patterns: [
       ~r"priv/static/(?!uploads/).*(js|css|png|jpeg|jpg|gif|svg)$",
       ~r"priv/gettext/.*(po)$",

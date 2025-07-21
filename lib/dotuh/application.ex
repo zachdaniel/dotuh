@@ -76,18 +76,20 @@ defmodule Dotuh.Application do
 
   defp ensure_dota_data!() do
     data_dir = Path.join(File.cwd!(), "dota_data")
-    
+
     if File.exists?(data_dir) do
       # Update existing repository
       {_output, 0} = System.cmd("git", ["pull"], cd: data_dir)
     else
       # Clone the repository
-      {_output, 0} = System.cmd("git", [
-        "clone", 
-        "--depth", "1",
-        "https://github.com/dotabuff/d2vpkr.git", 
-        data_dir
-      ])
+      {_output, 0} =
+        System.cmd("git", [
+          "clone",
+          "--depth",
+          "1",
+          "https://github.com/dotabuff/d2vpkr.git",
+          data_dir
+        ])
     end
   end
 

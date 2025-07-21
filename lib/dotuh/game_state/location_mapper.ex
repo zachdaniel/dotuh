@@ -1,11 +1,11 @@
 defmodule Dotuh.GameState.LocationMapper do
   @moduledoc """
   Maps Dota 2 coordinates to meaningful location names for coaching purposes.
-  
+
   The Dota 2 map coordinate system typically ranges from approximately:
   - X: -8000 to +8000 
   - Y: -8000 to +8000
-  
+
   With Radiant base in the bottom-left and Dire base in the top-right.
   """
 
@@ -18,24 +18,19 @@ defmodule Dotuh.GameState.LocationMapper do
       # Bases
       in_radiant_base?(xpos, ypos) -> "radiant_base"
       in_dire_base?(xpos, ypos) -> "dire_base"
-      
       # River and central areas
       in_river?(xpos, ypos) -> "river"
       in_roshan_pit?(xpos, ypos) -> "roshan_pit"
-      
       # Lanes
       in_top_lane?(xpos, ypos) -> "top_lane"
       in_mid_lane?(xpos, ypos) -> "mid_lane"
       in_bot_lane?(xpos, ypos) -> "bot_lane"
-      
       # Jungles
       in_radiant_jungle?(xpos, ypos) -> "radiant_jungle"
       in_dire_jungle?(xpos, ypos) -> "dire_jungle"
-      
       # Side shops and other areas
       in_radiant_side?(xpos, ypos) -> "radiant_side"
       in_dire_side?(xpos, ypos) -> "dire_side"
-      
       # Default for unknown areas
       true -> "unknown_area"
     end
@@ -92,14 +87,14 @@ defmodule Dotuh.GameState.LocationMapper do
   # General side areas
   defp in_radiant_side?(x, y) do
     # Radiant side: bottom-left quadrant (excluding base and jungle)
-    x < 0 and y < 0 and not in_radiant_base?(x, y) and not in_dire_jungle?(x, y) and 
-    not in_river?(x, y) and not in_bot_lane?(x, y) and not in_mid_lane?(x, y)
+    x < 0 and y < 0 and not in_radiant_base?(x, y) and not in_dire_jungle?(x, y) and
+      not in_river?(x, y) and not in_bot_lane?(x, y) and not in_mid_lane?(x, y)
   end
 
   defp in_dire_side?(x, y) do
     # Dire side: top-right quadrant (excluding base and jungle)
     x > 0 and y > 0 and not in_dire_base?(x, y) and not in_radiant_jungle?(x, y) and
-    not in_river?(x, y) and not in_top_lane?(x, y) and not in_mid_lane?(x, y)
+      not in_river?(x, y) and not in_top_lane?(x, y) and not in_mid_lane?(x, y)
   end
 
   @doc """
@@ -112,7 +107,7 @@ defmodule Dotuh.GameState.LocationMapper do
       "river" -> "River"
       "roshan_pit" -> "Roshan Pit"
       "top_lane" -> "Top Lane"
-      "mid_lane" -> "Mid Lane" 
+      "mid_lane" -> "Mid Lane"
       "bot_lane" -> "Bot Lane"
       "radiant_jungle" -> "Radiant Jungle"
       "dire_jungle" -> "Dire Jungle"
@@ -135,28 +130,41 @@ defmodule Dotuh.GameState.LocationMapper do
       # Alert for these types of movements
       case {from_location, to_location} do
         # Enemy entering dangerous areas (but not if already there)
-        {from, "roshan_pit"} when from != "roshan_pit" -> true
-        {from, location} when location in ["radiant_base", "dire_base"] and from != location -> true
-        
+        {from, "roshan_pit"} when from != "roshan_pit" ->
+          true
+
+        {from, location} when location in ["radiant_base", "dire_base"] and from != location ->
+          true
+
         # Lane changes
-        {from, to} when from in ["top_lane", "mid_lane", "bot_lane"] and 
-                        to in ["top_lane", "mid_lane", "bot_lane"] and from != to -> true
-        
+        {from, to}
+        when from in ["top_lane", "mid_lane", "bot_lane"] and
+               to in ["top_lane", "mid_lane", "bot_lane"] and from != to ->
+          true
+
         # Jungle to lane movements
-        {from, to} when from in ["radiant_jungle", "dire_jungle"] and 
-                        to in ["top_lane", "mid_lane", "bot_lane"] -> true
-        
+        {from, to}
+        when from in ["radiant_jungle", "dire_jungle"] and
+               to in ["top_lane", "mid_lane", "bot_lane"] ->
+          true
+
         # River movements (potential ganks) - but not if already in river
-        {from, "river"} when from != "river" -> true
-        
+        {from, "river"} when from != "river" ->
+          true
+
         # Different sides of map
-        {"radiant_side", location} when location in ["dire_side", "dire_jungle"] -> true
-        {"dire_side", location} when location in ["radiant_side", "radiant_jungle"] -> true
-        
+        {"radiant_side", location} when location in ["dire_side", "dire_jungle"] ->
+          true
+
+        {"dire_side", location} when location in ["radiant_side", "radiant_jungle"] ->
+          true
+
         # Any movement from unknown areas
-        {"unknown_area", _} -> true
-        
-        _ -> false
+        {"unknown_area", _} ->
+          true
+
+        _ ->
+          false
       end
     end
   end

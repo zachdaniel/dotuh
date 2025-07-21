@@ -33,6 +33,22 @@ defmodule Dotuh.Chat.Message do
       argument :conversation_id, :uuid, allow_nil?: false
 
       prepare build(default_sort: [inserted_at: :desc])
+
+      prepare build(
+                select: [
+                  :id,
+                  :text,
+                  :source,
+                  :tool_calls,
+                  :tool_results,
+                  :audio_path,
+                  :inserted_at,
+                  :conversation_id,
+                  :response_to_id,
+                  :complete
+                ]
+              )
+
       filter expr(conversation_id == ^arg(:conversation_id))
     end
 
@@ -56,7 +72,7 @@ defmodule Dotuh.Chat.Message do
 
     create :upsert_response do
       upsert? true
-      accept [:id, :response_to_id, :conversation_id]
+      accept [:id, :response_to_id, :conversation_id, :audio_path]
       argument :complete, :boolean, default: false
       argument :text, :string, allow_nil?: false, constraints: [trim?: false, allow_empty?: true]
       argument :tool_calls, {:array, :map}
@@ -122,8 +138,8 @@ defmodule Dotuh.Chat.Message do
       change set_attribute(:tool_results, arg(:tool_results))
       change set_attribute(:tool_calls, arg(:tool_calls))
 
-      # on update, only set complete to its new value
-      upsert_fields [:complete]
+      # on update, only set complete and audio_path to their new values
+      upsert_fields [:complete, :audio_path]
     end
   end
 
@@ -133,13 +149,23 @@ defmodule Dotuh.Chat.Message do
 
     publish :create, ["messages", :conversation_id] do
       transform fn %{data: message} ->
-        %{text: message.text, id: message.id, source: message.source}
+        %{
+          text: message.text,
+          id: message.id,
+          source: message.source,
+          audio_path: message.audio_path
+        }
       end
     end
 
     publish :upsert_response, ["messages", :conversation_id] do
       transform fn %{data: message} ->
-        %{text: message.text, id: message.id, source: message.source}
+        %{
+          text: message.text,
+          id: message.id,
+          source: message.source,
+          audio_path: message.audio_path
+        }
       end
     end
   end
@@ -166,6 +192,11 @@ defmodule Dotuh.Chat.Message do
     attribute :complete, :boolean do
       allow_nil? false
       default true
+    end
+
+    attribute :audio_path, :string do
+      allow_nil? true
+      public? true
     end
   end
 

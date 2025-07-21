@@ -4,7 +4,8 @@ defmodule Dotuh.GameState.Actions.SearchItems do
 
     case Dotuh.SimpleVdfParser.load_vdf_file("items.txt") do
       %{"DOTAAbilities" => items} when is_map(items) ->
-        matching_items = items
+        matching_items =
+          items
           |> Enum.filter(fn {item_name, _item_data} ->
             item_name_lower = String.downcase(item_name)
             String.contains?(item_name_lower, search_term)
@@ -19,18 +20,20 @@ defmodule Dotuh.GameState.Actions.SearchItems do
             }
           end)
 
-        {:ok, %{
-          search_term: search_term,
-          results: matching_items,
-          count: length(matching_items)
-        }}
+        {:ok,
+         %{
+           search_term: search_term,
+           results: matching_items,
+           count: length(matching_items)
+         }}
 
       _ ->
-        {:error, Ash.Error.Action.InvalidArgument.exception(
-          field: :search_term,
-          message: "Failed to load item data from VDF files",
-          value: input.arguments.search_term
-        )}
+        {:error,
+         Ash.Error.Action.InvalidArgument.exception(
+           field: :search_term,
+           message: "Failed to load item data from VDF files",
+           value: input.arguments.search_term
+         )}
     end
   end
 end

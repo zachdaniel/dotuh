@@ -4,16 +4,17 @@ defmodule Dotuh.GameState.Actions.SearchHeroes do
 
     case Dotuh.SimpleVdfParser.load_vdf_file("npc_heroes.txt") do
       %{"DOTAHeroes" => heroes} when is_map(heroes) ->
-        matching_heroes = heroes
+        matching_heroes =
+          heroes
           |> Enum.filter(fn {hero_name, hero_data} ->
             # Only process map data (skip string values like "1")
             if is_map(hero_data) do
               hero_name_lower = String.downcase(hero_name)
               localized_name = get_in(hero_data, ["workshop_guide_name"]) || ""
               localized_name_lower = String.downcase(localized_name)
-              
-              String.contains?(hero_name_lower, search_term) or 
-              String.contains?(localized_name_lower, search_term)
+
+              String.contains?(hero_name_lower, search_term) or
+                String.contains?(localized_name_lower, search_term)
             else
               false
             end
@@ -28,18 +29,20 @@ defmodule Dotuh.GameState.Actions.SearchHeroes do
             }
           end)
 
-        {:ok, %{
-          search_term: search_term,
-          results: matching_heroes,
-          count: length(matching_heroes)
-        }}
+        {:ok,
+         %{
+           search_term: search_term,
+           results: matching_heroes,
+           count: length(matching_heroes)
+         }}
 
       _ ->
-        {:error, Ash.Error.Action.InvalidArgument.exception(
-          field: :search_term,
-          message: "Failed to load hero data from VDF files",
-          value: input.arguments.search_term
-        )}
+        {:error,
+         Ash.Error.Action.InvalidArgument.exception(
+           field: :search_term,
+           message: "Failed to load hero data from VDF files",
+           value: input.arguments.search_term
+         )}
     end
   end
 end

@@ -88,6 +88,7 @@ defmodule Dotuh.VDF.Reader do
     # Handle case where parsing ends with unfinished stack
     # Pop all remaining items properly by collapsing the stack
     final_stack = collapse_stack(stack)
+
     case final_stack do
       [{nil, map}] -> {:ok, map}
       [{_key, map}] -> {:ok, map}
@@ -98,6 +99,7 @@ defmodule Dotuh.VDF.Reader do
   @spec collapse_stack(stack()) :: stack()
   defp collapse_stack([{nil, _map}] = stack), do: stack
   defp collapse_stack([{_key, _map}] = stack), do: stack
+
   defp collapse_stack([{key, map}, {upper_key, upper_map} | rest]) do
     new_upper_map = enter_map_value(upper_map, key, map)
     collapse_stack([{upper_key, new_upper_map} | rest])
@@ -141,14 +143,18 @@ defmodule Dotuh.VDF.Reader do
     case acc[:stack] do
       [{current_key, %{}} | rest] when is_binary(current_key) ->
         # Convert the pending key to a key-value pair with empty string
-        new_stack = case rest do
-          [{parent_key, parent_map} | rest_stack] ->
-            new_parent_map = enter_map_value(parent_map, current_key, "")
-            [{parent_key, new_parent_map} | rest_stack]
-          [] ->
-            [{nil, %{current_key => ""}}]
-        end
+        new_stack =
+          case rest do
+            [{parent_key, parent_map} | rest_stack] ->
+              new_parent_map = enter_map_value(parent_map, current_key, "")
+              [{parent_key, new_parent_map} | rest_stack]
+
+            [] ->
+              [{nil, %{current_key => ""}}]
+          end
+
         {:ok, %{acc | stack: new_stack, unexpected_state: @unexpected_after_key_value}}
+
       _ ->
         # If no pending key, just skip
         {:ok, acc}

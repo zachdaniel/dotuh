@@ -35,7 +35,7 @@ defmodule Dotuh.GameState.Game do
       description "Get the most recent active game and all related data (heroes, items, abilities, players, buildings)"
 
       filter expr(active == true)
-      
+
       prepare build(
                 sort: [inserted_at: :desc],
                 limit: 1,
@@ -90,10 +90,6 @@ defmodule Dotuh.GameState.Game do
     timestamps()
   end
 
-  calculations do
-    calculate :active, :boolean, expr(game_state == "DOTA_GAMERULES_STATE_GAME_IN_PROGRESS")
-  end
-
   relationships do
     has_many :heroes, Dotuh.GameState.Hero
     has_many :abilities, Dotuh.GameState.Ability
@@ -101,5 +97,16 @@ defmodule Dotuh.GameState.Game do
     has_many :buildings, Dotuh.GameState.Building
     has_many :players, Dotuh.GameState.Player
     has_many :game_notes, Dotuh.GameState.GameNote
+  end
+
+  calculations do
+    calculate :active,
+              :boolean,
+              expr(
+                game_state in [
+                  "DOTA_GAMERULES_STATE_GAME_IN_PROGRESS",
+                  "DOTA_GAMERULES_STATE_PRE_GAME"
+                ]
+              )
   end
 end

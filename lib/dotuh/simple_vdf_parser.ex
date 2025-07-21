@@ -27,14 +27,16 @@ defmodule Dotuh.SimpleVdfParser do
   """
   def load_vdf_file(filename) do
     file_path = Path.join(["./dota_data/dota/scripts/npc", filename])
-    
+
     case File.read(file_path) do
-      {:ok, content} -> 
+      {:ok, content} ->
         case parse_string(content) do
           {:ok, data} -> data
           {:error, _reason} -> %{}
         end
-      {:error, _reason} -> %{}
+
+      {:error, _reason} ->
+        %{}
     end
   end
 end

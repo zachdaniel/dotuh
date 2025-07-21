@@ -60,4 +60,3 @@ defmodule Dotuh.GameState.GameNote do
     belongs_to :game, Dotuh.GameState.Game
   end
 end
-

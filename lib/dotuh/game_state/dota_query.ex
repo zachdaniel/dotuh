@@ -47,4 +47,3 @@ defmodule Dotuh.GameState.DotaQuery do
     end
   end
 end
-

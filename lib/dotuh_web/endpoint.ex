@@ -27,7 +27,7 @@ defmodule DotuhWeb.Endpoint do
     only: DotuhWeb.static_paths()
 
   if Code.ensure_loaded?(Tidewave) do
-    plug Tidewave, tools: [except: [:get_ecto_schemas]]
+    plug Tidewave, tools: [exclude: [:get_ecto_schemas]]
   end
 
   # Code reloading can be explicitly enabled under the

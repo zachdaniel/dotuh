@@ -79,13 +79,18 @@ defmodule Dotuh.GameState.Ability do
     timestamps()
   end
 
+  relationships do
+    belongs_to :game, Dotuh.GameState.Game
+    belongs_to :hero, Dotuh.GameState.Hero
+  end
+
   calculations do
-    calculate :ability_data, :map, {Dotuh.GameState.Calculations.AbilityDataExtractor,
-      vdf_path: [:name]
-    } do
+    calculate :ability_data,
+              :map,
+              {Dotuh.GameState.Calculations.AbilityDataExtractor, vdf_path: [:name]} do
       public? true
     end
-    
+
     calculate :ability_description, :string, fn records, _context ->
       # Descriptions are in localization files, not VDF data
       # For now, return a placeholder or nil
@@ -93,10 +98,5 @@ defmodule Dotuh.GameState.Ability do
     end do
       public? true
     end
-  end
-
-  relationships do
-    belongs_to :game, Dotuh.GameState.Game
-    belongs_to :hero, Dotuh.GameState.Hero
   end
 end

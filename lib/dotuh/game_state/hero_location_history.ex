@@ -178,4 +178,3 @@ defmodule Dotuh.GameState.HeroLocationHistory do
     identity :unique_movement, [:game_id, :hero_id, :location_name, :entered_at]
   end
 end
-

@@ -1,7 +1,19 @@
 defmodule DotuhWeb.GameController do
   use DotuhWeb, :controller
   require Ash.Query
-  alias Dotuh.GameState.{Game, Hero, Ability, Item, Building, Player, Event, HeroLocationHistory, LocationMapper}
+  require Logger
+
+  alias Dotuh.GameState.{
+    Game,
+    Hero,
+    Ability,
+    Item,
+    Building,
+    Player,
+    Event,
+    HeroLocationHistory,
+    LocationMapper
+  }
 
   def event(conn, params) do
     if params["league"]["match_id"] do
@@ -71,6 +83,7 @@ defmodule DotuhWeb.GameController do
 
   defp update_hero_data(game, %{"hero" => hero_data}) do
     hero_name = hero_data["name"]
+
     hero_attrs = %{
       game_id: game.id,
       name: hero_name,
@@ -97,6 +110,7 @@ defmodule DotuhWeb.GameController do
             # Track initial location for the new hero
             track_hero_location_change(game, new_hero, hero_attrs.xpos, hero_attrs.ypos)
             {:ok, new_hero}
+
           error ->
             error
         end
@@ -107,6 +121,7 @@ defmodule DotuhWeb.GameController do
             # Track location change for the updated hero
             track_hero_location_change(game, updated_hero, hero_attrs.xpos, hero_attrs.ypos)
             {:ok, updated_hero}
+
           error ->
             error
         end
@@ -160,6 +175,7 @@ defmodule DotuhWeb.GameController do
                 # Track initial location for the new minimap hero
                 track_hero_location_change(game, new_hero, hero_attrs.xpos, hero_attrs.ypos)
                 {:ok, new_hero}
+
               error ->
                 error
             end
@@ -172,19 +188,28 @@ defmodule DotuhWeb.GameController do
               xpos: object_data["xpos"],
               ypos: object_data["ypos"]
             }
-            
+
             # Only add is_current_player: false if it's not already true
-            update_attrs = if hero.is_current_player do
-              update_attrs  # Don't include is_current_player to preserve true value
-            else
-              Map.put(update_attrs, :is_current_player, false)
-            end
+            update_attrs =
+              if hero.is_current_player do
+                # Don't include is_current_player to preserve true value
+                update_attrs
+              else
+                Map.put(update_attrs, :is_current_player, false)
+              end
 
             case hero |> Ash.Changeset.for_update(:update, update_attrs) |> Ash.update() do
               {:ok, updated_hero} ->
                 # Track location change for the minimap hero
-                track_hero_location_change(game, updated_hero, object_data["xpos"], object_data["ypos"])
+                track_hero_location_change(
+                  game,
+                  updated_hero,
+                  object_data["xpos"],
+                  object_data["ypos"]
+                )
+
                 {:ok, updated_hero}
+
               error ->
                 error
             end
@@ -270,7 +295,7 @@ defmodule DotuhWeb.GameController do
         items
         |> Enum.each(fn {slot, item_data} ->
           # Skip empty items
-          unless item_data["name"] == "empty" do
+          if item_data["name"] != "empty" do
             item_attrs = %{
               game_id: game.id,
               hero_id: hero.id,
@@ -367,18 +392,23 @@ defmodule DotuhWeb.GameController do
       denies: player_data["denies"] || 0
     }
 
-    # Upsert player by game_id and accountid
-    case Player
-         |> Ash.Query.filter(game_id == ^game.id and accountid == ^player_attrs.accountid)
-         |> Ash.read_one() do
-      {:ok, nil} ->
-        Player |> Ash.Changeset.for_create(:create, player_attrs) |> Ash.create()
+    # Skip if accountid is nil
+    if is_nil(player_attrs.accountid) do
+      :ok
+    else
+      # Upsert player by game_id and accountid
+      case Player
+           |> Ash.Query.filter(game_id == ^game.id and accountid == ^player_attrs.accountid)
+           |> Ash.read_one() do
+        {:ok, nil} ->
+          Player |> Ash.Changeset.for_create(:create, player_attrs) |> Ash.create()
 
-      {:ok, player} ->
-        player |> Ash.Changeset.for_update(:update, player_attrs) |> Ash.update()
+        {:ok, player} ->
+          player |> Ash.Changeset.for_update(:update, player_attrs) |> Ash.update()
 
-      _error ->
-        :ok
+        _error ->
+          :ok
+      end
     end
 
     :ok
@@ -426,10 +456,11 @@ defmodule DotuhWeb.GameController do
   defp normalize_team(team) when is_binary(team), do: team
   defp normalize_team(_), do: "both"
 
-  defp track_hero_location_change(game, hero, new_xpos, new_ypos) when is_number(new_xpos) and is_number(new_ypos) do
+  defp track_hero_location_change(game, hero, new_xpos, new_ypos)
+       when is_number(new_xpos) and is_number(new_ypos) do
     # Calculate new location
     new_location = LocationMapper.coordinates_to_location(new_xpos, new_ypos)
-    
+
     # Get the hero's most recent location history
     case HeroLocationHistory
          |> Ash.Query.filter(hero_id == ^hero.id)
@@ -444,14 +475,19 @@ defmodule DotuhWeb.GameController do
         # Check if location has changed
         if last_location.location_name != new_location do
           # Check if this is a significant change worth tracking
-          if LocationMapper.significant_location_change?(last_location.location_name, new_location) do
+          if LocationMapper.significant_location_change?(
+               last_location.location_name,
+               new_location
+             ) do
             create_location_history_entry(game, hero, new_location, new_xpos, new_ypos)
           else
             # Still create entry but for any location change to maintain history
             create_location_history_entry(game, hero, new_location, new_xpos, new_ypos)
           end
+        else
         end
-        # If location hasn't changed, don't create a new entry
+
+      # If location hasn't changed, don't create a new entry
 
       _error ->
         # On error, still try to create entry
@@ -476,8 +512,12 @@ defmodule DotuhWeb.GameController do
     |> Ash.Changeset.for_create(:track_movement, location_attrs)
     |> Ash.create()
     |> case do
-      {:ok, _entry} -> :ok
-      {:error, _reason} -> :ok  # Don't fail the whole process if location tracking fails
+      {:ok, _entry} ->
+        :ok
+
+      {:error, _reason} ->
+        # Don't fail the whole process if location tracking fails
+        :ok
     end
   end
 end
